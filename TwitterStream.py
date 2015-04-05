@@ -2,23 +2,91 @@ import tweepy
 from TwitterConnection import TwitterAuthentication
 from tweepy import Stream
 from tweepy.streaming import StreamListener
+from tweepy.utils import import_simplejson
+import operator
+import sys
+json = import_simplejson()
+
+tweetCount = 0
+hashTagsMapList = []
+hashTagsMap = {}
+trendingHashTags = {}
+windowSize = 3              #Default window size
+K = 10                      #Default K
 
 class TweetListener(StreamListener):
 
     def on_data(self, data):
-        print data
+        global tweetCount, hashTagsMapList, hashTagsMap
+        data = json.loads(data)
+        if 'entities' in data:
+            if len(data['entities']['hashtags']) > 0:
+                tweetCount += 1
+                # print str(tweetCount) + "\n"
+                # print data['text']
+                self.getHashtags(data)
+                if tweetCount == 100:
+                    tweetCount = 0
+                    hashTagsMapList.append(hashTagsMap)
+                    print len(hashTagsMapList)
+                    self.getTrendingHashtags()
+                    hashTagsMap = {}
         return True
 
     def on_error(self, status):
         print status
 
-ckey = "HM6VFab52fMzCqkxwKoF8cqRt"
-csecret = "JaxQ7zkNRLf0qQjisEamW6lj1O7wc5Nv8k8rmdEnmBLA5E26m2"
-atoken = "242248419-E8aEN7i8UB7BvTZxtdCxwzgSLzfO3aOKppeKCVlP"
-asecret = "AtaUjKrNschURDr7b6L8YsWioCZo3bB4tt8V4LnBk4DiO"
+    def getHashtags(self, data):
+        global hashTagsMap
+        hashtagArray = []
+        hashtags = data['entities']['hashtags']
+        for hashtag in hashtags:
+            hashtagText = hashtag['text']
+            if hashtagText is None:
+                continue
+            if hashtagText in hashTagsMap:
+                hashTagsMap[hashtagText] = hashTagsMap[hashtagText] + 1
+            else:
+                hashTagsMap[hashtagText] = 1
 
-auth = TwitterAuthentication(ckey, csecret, atoken, asecret)
-auth = auth.getAuthHandler()
+    def getTrendingHashtags(self):
+        global trendingHashTags, hashTagsMapList
+        if len(hashTagsMapList) > windowSize:
+            mapToBeRemoved = hashTagsMapList[0]
+            for key in mapToBeRemoved:
+                value = trendingHashTags[key]
+                value = value - mapToBeRemoved[key]
+                if value == 0:
+                    trendingHashTags.pop(key, None)
+                else:
+                    trendingHashTags[key] = value
 
-twitterStream = Stream(auth, TweetListener())
-twitterStream.filter(track=["car"])
+        recentlyAddedMap = hashTagsMapList[-1]
+        for key in recentlyAddedMap:
+            if key in trendingHashTags:
+                trendingHashTags[key] = trendingHashTags[key] + recentlyAddedMap[key]
+            else:
+                trendingHashTags[key] = recentlyAddedMap[key]
+
+        print recentlyAddedMap
+        sorted_hashmap = sorted(trendingHashTags.items(), key=operator.itemgetter(1))
+        for i in xrange(len(sorted_hashmap)-1, len(sorted_hashmap)-K-1,-1):
+            print sorted_hashmap[i][0] + "\t" + str(sorted_hashmap[i][1])
+
+
+if __name__ == '__main__':
+    ckey = sys.argv[1]
+    csecret = sys.argv[2]
+    atoken = sys.argv[3]
+    asecret = sys.argv[4]
+    windowSize = int(sys.argv[5])
+    K = int(sys.argv[6])
+
+    print ckey
+    print csecret
+    print atoken
+    print asecret
+    auth = TwitterAuthentication(ckey, csecret, atoken, asecret)
+    auth = auth.getAuthHandler()
+    twitterStream = Stream(auth, TweetListener())
+    twitterStream.sample()
