@@ -13,6 +13,7 @@ hashTagsMap = {}
 trendingHashTags = {}
 windowSize = 3              #Default window size
 K = 10                      #Default K
+numberOfTweets = 100
 
 class TweetListener(StreamListener):
 
@@ -22,13 +23,10 @@ class TweetListener(StreamListener):
         if 'entities' in data:
             if len(data['entities']['hashtags']) > 0:
                 tweetCount += 1
-                # print str(tweetCount) + "\n"
-                # print data['text']
                 self.getHashtags(data)
-                if tweetCount == 100:
+                if tweetCount == numberOfTweets:
                     tweetCount = 0
                     hashTagsMapList.append(hashTagsMap)
-                    print len(hashTagsMapList)
                     self.getTrendingHashtags()
                     hashTagsMap = {}
         return True
@@ -54,12 +52,13 @@ class TweetListener(StreamListener):
         if len(hashTagsMapList) > windowSize:
             mapToBeRemoved = hashTagsMapList[0]
             for key in mapToBeRemoved:
-                value = trendingHashTags[key]
-                value = value - mapToBeRemoved[key]
-                if value == 0:
-                    trendingHashTags.pop(key, None)
-                else:
-                    trendingHashTags[key] = value
+                if key in trendingHashTags:
+                    value = trendingHashTags[key]
+                    value = value - mapToBeRemoved[key]
+                    if value == 0:
+                        trendingHashTags.pop(key, None)
+                    else:
+                        trendingHashTags[key] = value
 
         recentlyAddedMap = hashTagsMapList[-1]
         for key in recentlyAddedMap:
@@ -68,10 +67,9 @@ class TweetListener(StreamListener):
             else:
                 trendingHashTags[key] = recentlyAddedMap[key]
 
-        print recentlyAddedMap
         sorted_hashmap = sorted(trendingHashTags.items(), key=operator.itemgetter(1))
         for i in xrange(len(sorted_hashmap)-1, len(sorted_hashmap)-K-1,-1):
-            print sorted_hashmap[i][0] + "\t" + str(sorted_hashmap[i][1])
+            print sorted_hashmap[i][0].encode('utf-8') + "\t&emsp;\t" + str(sorted_hashmap[i][1])
 
 
 if __name__ == '__main__':
@@ -80,12 +78,9 @@ if __name__ == '__main__':
     atoken = sys.argv[3]
     asecret = sys.argv[4]
     windowSize = int(sys.argv[5])
-    K = int(sys.argv[6])
+    numberOfTweets = int(sys.argv[6])
+    K = int(sys.argv[7])
 
-    print ckey
-    print csecret
-    print atoken
-    print asecret
     auth = TwitterAuthentication(ckey, csecret, atoken, asecret)
     auth = auth.getAuthHandler()
     twitterStream = Stream(auth, TweetListener())
