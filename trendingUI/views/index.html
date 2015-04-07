@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="/stylesheets/bootstrap-theme.min.css">
+  </head>
+  <body>
+    <h1></h1>
+    <p>Please provide your twitter credentials to find top trending hashtags right now.</p>
+    <div class="main-container">
+      <div class="container-full">
+        <div class="col-md-6">
+          <h4>Consumer Key</h4>
+          <input id="ckey" type="text" aria-describedby="sizing-addon2" class="form-control">
+          <h4>Consumer Secret</h4>
+          <input id="csecret" type="text" aria-describedby="sizing-addon2" class="form-control">
+          <h4>Access Token</h4>
+          <input id="atoken" type="text" aria-describedby="sizing-addon2" class="form-control">
+          <h4>Access Secret</h4>
+          <input id="asecret" type="text" aria-describedby="sizing-addon2" class="form-control">
+        </div>
+        <div class="col-md-6">
+          <h4>Number of Windows</h4>
+          <input id="numwindows" type="text" aria-describedby="sizing-addon2" class="form-control">
+          <h4>Number of tweets in each window</h4>
+          <input id="numtweets" type="text" aria-describedby="sizing-addon2" class="form-control">
+          <h4>Number of top trending hashtags</h4>
+          <input id="numhashtags" type="text" aria-describedby="sizing-addon2" class="form-control">
+        </div>
+      </div>
+    </div>
+    <div class="buttondisplayarea">
+      <button type="button" id="getTopTrendingButton" class="btn btn-primary">
+        Get it
+        
+      </button>
+    </div>
+    <div id="statsdisplayarea">
+      <h1>Top Trending Hashtags</h1>
+      <h3>Here are the top trending hashtags with frequency of each hashtag separated by tab</h3>
+      <p id="stats"></p>
+    </div>
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/javascripts/toptrending.js"></script>
+  </body>
+</html>

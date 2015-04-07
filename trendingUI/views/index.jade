@@ -1,0 +1,33 @@
+extends layout
+
+block content
+  h1= title
+  p Please provide your twitter credentials to find top trending hashtags right now.
+  div(class="main-container")
+    div(class="container-full")
+    div(class="col")
+      h4 Consumer Key
+      input#ckey(type="text", class="form-control", aria-describedby="sizing-addon2")
+      h4 Consumer Secret
+      input#csecret(type="text", class="form-control", aria-describedby="sizing-addon2")
+      h4 Access Token
+      input#atoken(type="text", class="form-control", aria-describedby="sizing-addon2")
+      h4 Access Secret
+      input#asecret(type="text", class="form-control", aria-describedby="sizing-addon2")
+    div(class="col")
+      h4 Number of Windows
+      input#numwindows(type="text", class="form-control", aria-describedby="sizing-addon2")
+      h4 Number of tweets in each window
+      input#numtweets(type="text", class="form-control", aria-describedby="sizing-addon2")
+      h4 Number of top trending hashtags
+      input#numhashtags(type="text", class="form-control", aria-describedby="sizing-addon2")
+  div(class="buttondisplayarea")
+    button(type="button", class="btn btn-primary", id="getTopTrendingButton").
+      Get it
+
+  div(id="statsdisplayarea")
+    h2 Here are the top trending hashtags with frequency of each hashtag separated by tab
+    p(id="stats")
+block scripts
+  script(src='/socket.io/socket.io.js')
+  script(src='/javascripts/toptrending.js')
